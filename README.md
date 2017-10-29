@@ -4,6 +4,7 @@ Qt based player application for Joker TV card (https://tv.jokersys.com).
 Supported platforms: Linux, Mac OSx, Win32/64
 
 (c) Abylay Ospan <aospan@jokersys.com>, 2017
+
 (c) Ernst Maurer <ernst.maurer@gmail.com>, 2017
 
 LICENSE: GPLv2
