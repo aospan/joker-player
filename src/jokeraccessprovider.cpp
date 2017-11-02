@@ -402,6 +402,14 @@ QVector<JokerProgram> JokerAccessProvider::discoveredPrograms() const
     return d_func()->discoveredPrograms;
 }
 
+void JokerAccessProvider::setCaids(const QVector<uint8_t>& _caids) {
+    emit caidsUpdated(_caids);
+}
+
+void JokerAccessProvider::setCamInfo(CamInfo ci) {
+    emit camInfoUpdated(ci);
+}
+
 void JokerAccessProvider::processProgram(const JokerProgram &program)
 {
     Q_D(JokerAccessProvider);

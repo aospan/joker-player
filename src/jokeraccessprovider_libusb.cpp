@@ -23,6 +23,8 @@ const int kStartTuneInterval = 10;
 
 const QEvent::Type kProgramUpdateEventType = static_cast<QEvent::Type>(QEvent::User + 1);
 const QEvent::Type kChannelStatusEventType = static_cast<QEvent::Type>(QEvent::User + 2);
+const QEvent::Type kCamInfoEventType = static_cast<QEvent::Type>(QEvent::User + 3);
+const QEvent::Type kCaidsEventType = static_cast<QEvent::Type>(QEvent::User + 4);
 
 // ProgramUpdateEvent
 
@@ -66,6 +68,42 @@ public:
     JokerAccessProvider::SignalQuality m_quality = JokerAccessProvider::SignalQuality::BadSignalQuality;
 };
 
+class CAMInfoEvent : public QEvent
+{
+public:
+    explicit CAMInfoEvent(uint8_t applicationType,
+                        uint16_t applicationMaacturer,
+                        uint16_t manufacturerCode,
+                        QString menuString,
+                        QString camInfoString)
+        : QEvent(kCamInfoEventType)
+        , m_applicationType(applicationType)
+        , m_applicationMaacturer(applicationMaacturer)
+        , m_menuString(menuString)
+        , m_camInfoString(camInfoString)
+    {
+    }
+
+
+    uint8_t m_applicationType = 0;
+    uint16_t m_applicationMaacturer = 0;
+    uint16_t m_manufacturerCode = 0;
+    QString m_menuString;
+    QString m_camInfoString;
+};
+
+class CaidsEvent : public QEvent
+{
+public:
+    explicit CaidsEvent(const QVector<uint8_t> &caIds)
+        : QEvent(kCaidsEventType)
+        , m_caIds(caIds)
+    {
+    }
+
+    QVector<uint8_t> m_caIds;
+};
+
 // JokerMessageHandler
 
 class JokerMessageHandler : public QObject
@@ -93,6 +131,10 @@ public:
             } else {
                 qCDebug(jkAccessProvider) << "Ignore channel status event";
             }
+        } else if (eventType == kCamInfoEventType) {
+            dptr->processCamInfoEvent(event);
+        } else if (eventType == kCaidsEventType) {
+            dptr->processCaidsEvent(event);
         }
     }
 
@@ -161,6 +203,66 @@ static void jokerStatusCallback(void *data)
     qApp->postEvent(priv->messageHandler, event);
 }
 
+// CAM module info callback
+// will be called when CAM module info available
+static void jokerCiInfoCallback(void *data)
+{
+    if (!data)
+        return;
+
+    if (qProviders()->isEmpty())
+        return;
+    const JokerAccessProviderPrivate *priv = qProviders()->first();
+    if (!priv)
+        return;
+
+    auto jokerPtr = reinterpret_cast<joker_t *>(data);
+    if (!jokerPtr || !jokerPtr->joker_ci_opaque)
+        return;
+    auto jokerCiPtr = reinterpret_cast<joker_ci_t *>(jokerPtr->joker_ci_opaque);
+    int i = 0;
+
+    const auto applicationType = jokerCiPtr->application_type;
+    const auto applicationManufacturer = jokerCiPtr->application_manufacturer;
+    const auto manufacturerCode = jokerCiPtr->manufacturer_code;
+    const  auto menuString = QString::fromUtf8(reinterpret_cast<const char*>(jokerCiPtr->menu_string));
+    const auto camInfoString = QString::fromUtf8(reinterpret_cast<const char*>(jokerCiPtr->cam_infostring));
+
+    auto event = new CAMInfoEvent(applicationType, applicationManufacturer, manufacturerCode, menuString, camInfoString);
+    qApp->postEvent(priv->messageHandler, event);
+}
+
+// CAM module supported CAIDs callback
+// will be called when CAM module supported CAIDs available
+void jokerCiCaidCallback(void *data)
+{
+    if (!data)
+        return;
+
+    if (qProviders()->isEmpty())
+        return;
+    const JokerAccessProviderPrivate *priv = qProviders()->first();
+    if (!priv)
+        return;
+
+    auto jokerPtr = reinterpret_cast<joker_t *>(data);
+    if (!jokerPtr || !jokerPtr->joker_ci_opaque)
+        return;
+    auto jokerCiPtr = reinterpret_cast<joker_ci_t *>(jokerPtr->joker_ci_opaque);
+
+    /* print supported CAIDs */
+    QVector<uint8_t> caIds;
+    printf("  Supported CAIDs: \n");
+    for (int i = 0; i < CAID_MAX_COUNT; i++) {
+        if (!jokerCiPtr->ca_ids[i])
+            break; /* end of list detected */
+        caIds.append(jokerCiPtr->ca_ids[i]);
+    }
+
+    auto event = new CaidsEvent(caIds);
+    qApp->postEvent(priv->messageHandler, event);
+}
+
 JokerAccessProviderPrivate::JokerAccessProviderPrivate(JokerAccessProvider *q)
     : q_ptr(q)
 {
@@ -193,6 +295,8 @@ void JokerAccessProviderPrivate::open()
 
     ::memset(&joker, 0, sizeof(joker));
     joker.status_callback = jokerStatusCallback;
+    joker.ci_info_callback = jokerCiInfoCallback;
+    joker.ci_caid_callback = jokerCiCaidCallback;
     joker.libusb_verbose = 0;
     const auto result = ::joker_open(&joker);
     ::memset(&pool, 0, sizeof(pool));
@@ -433,6 +537,24 @@ void JokerAccessProviderPrivate::processProgramUpdateEvent(QEvent *event)
 
     Q_Q(JokerAccessProvider);
     q->processProgram(program);
+}
+
+void JokerAccessProviderPrivate::processCamInfoEvent(QEvent *event)
+{
+    const auto updateEvent = static_cast<CAMInfoEvent *>(event);
+
+    Q_Q(JokerAccessProvider);
+    q->setCamInfo({updateEvent->m_applicationType, updateEvent->m_applicationMaacturer,
+                  updateEvent->m_manufacturerCode, updateEvent->m_menuString,
+                  updateEvent->m_camInfoString});
+}
+
+void JokerAccessProviderPrivate::processCaidsEvent(QEvent *event)
+{
+    const auto updateEvent = static_cast<CaidsEvent *>(event);
+
+    Q_Q(JokerAccessProvider);
+    q->setCaids(updateEvent->m_caIds);
 }
 
 void JokerAccessProviderPrivate::processChannelStatusEvent(QEvent *event)

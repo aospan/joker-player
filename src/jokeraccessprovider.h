@@ -13,6 +13,15 @@ class JokerSettingsStorage;
 
 class JokerAccessProviderPrivate;
 
+struct CamInfo
+{
+    uint8_t m_applicationType = 0;
+    uint16_t m_applicationMaacturer = 0;
+    uint16_t m_manufacturerCode = 0;
+    QString m_menuString;
+    QString m_camInfoString;
+};
+
 class JokerAccessProvider : public QObject
 {
     Q_OBJECT
@@ -128,6 +137,8 @@ signals:
 
     void programDiscovered(const JokerProgram &program);
     void programUpdated(const JokerProgram &program);
+    void caidsUpdated(const QVector<uint8_t>& _caids);
+    void camInfoUpdated(CamInfo ci);
 
     void scanningProgressChanged(double progress);
     void scanningChannelChanged(const QString &standardName, int frequencyMhz);
@@ -161,6 +172,8 @@ private:
     void setDiscoveryJobsCount(int discoveryJobsCount);
 
     void processProgram(const JokerProgram &program);
+    void setCamInfo(CamInfo ci);
+    void setCaids(const QVector<uint8_t>&);
 
     void registerMediaStream(JokerPlayer *player);
     void unregisterMediaStream(JokerPlayer *player);
