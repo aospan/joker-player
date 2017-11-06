@@ -68,40 +68,44 @@ public:
     JokerAccessProvider::SignalQuality m_quality = JokerAccessProvider::SignalQuality::BadSignalQuality;
 };
 
-class CAMInfoEvent : public QEvent
+// CamInfoEvent
+
+class CamInfoEvent : public QEvent
 {
 public:
-    explicit CAMInfoEvent(uint8_t applicationType,
-                        uint16_t applicationMaacturer,
-                        uint16_t manufacturerCode,
-                        QString menuString,
-                        QString camInfoString)
+    explicit CamInfoEvent(int applicationType,
+                          int applicationManufacturer,
+                          int manufacturerCode,
+                          QString menuString,
+                          QString infoString)
         : QEvent(kCamInfoEventType)
         , m_applicationType(applicationType)
-        , m_applicationMaacturer(applicationMaacturer)
+        , m_applicationManufacturer(applicationManufacturer)
+        , m_manufacturerCode(manufacturerCode)
         , m_menuString(menuString)
-        , m_camInfoString(camInfoString)
+        , m_infoString(infoString)
     {
     }
 
-
     uint8_t m_applicationType = 0;
-    uint16_t m_applicationMaacturer = 0;
+    uint16_t m_applicationManufacturer = 0;
     uint16_t m_manufacturerCode = 0;
     QString m_menuString;
-    QString m_camInfoString;
+    QString m_infoString;
 };
+
+// CaidsEvent
 
 class CaidsEvent : public QEvent
 {
 public:
-    explicit CaidsEvent(const QVector<uint8_t> &caIds)
+    explicit CaidsEvent(const QVector<int> &caids)
         : QEvent(kCaidsEventType)
-        , m_caIds(caIds)
+        , m_caids(caids)
     {
     }
 
-    QVector<uint8_t> m_caIds;
+    QVector<int> m_caids;
 };
 
 // JokerMessageHandler
@@ -205,61 +209,63 @@ static void jokerStatusCallback(void *data)
 
 // CAM module info callback
 // will be called when CAM module info available
-static void jokerCiInfoCallback(void *data)
+static void jokerCamInfoCallback(void *data)
 {
     if (!data)
         return;
 
     if (qProviders()->isEmpty())
         return;
+
     const JokerAccessProviderPrivate *priv = qProviders()->first();
     if (!priv)
         return;
 
-    auto jokerPtr = reinterpret_cast<joker_t *>(data);
+    const auto jokerPtr = reinterpret_cast<const joker_t *>(data);
     if (!jokerPtr || !jokerPtr->joker_ci_opaque)
         return;
-    auto jokerCiPtr = reinterpret_cast<joker_ci_t *>(jokerPtr->joker_ci_opaque);
-    int i = 0;
+
+    const auto jokerCiPtr = reinterpret_cast<const joker_ci_t *>(jokerPtr->joker_ci_opaque);
 
     const auto applicationType = jokerCiPtr->application_type;
     const auto applicationManufacturer = jokerCiPtr->application_manufacturer;
     const auto manufacturerCode = jokerCiPtr->manufacturer_code;
-    const  auto menuString = QString::fromUtf8(reinterpret_cast<const char*>(jokerCiPtr->menu_string));
-    const auto camInfoString = QString::fromUtf8(reinterpret_cast<const char*>(jokerCiPtr->cam_infostring));
+    const auto menuString = QString::fromUtf8(reinterpret_cast<const char *>(jokerCiPtr->menu_string));
+    const auto infoString = QString::fromUtf8(reinterpret_cast<const char *>(jokerCiPtr->cam_infostring));
 
-    auto event = new CAMInfoEvent(applicationType, applicationManufacturer, manufacturerCode, menuString, camInfoString);
+    auto event = new CamInfoEvent(applicationType, applicationManufacturer, manufacturerCode, menuString, infoString);
     qApp->postEvent(priv->messageHandler, event);
 }
 
 // CAM module supported CAIDs callback
 // will be called when CAM module supported CAIDs available
-void jokerCiCaidCallback(void *data)
+void jokerCaidsCallback(void *data)
 {
     if (!data)
         return;
 
     if (qProviders()->isEmpty())
         return;
+
     const JokerAccessProviderPrivate *priv = qProviders()->first();
     if (!priv)
         return;
 
-    auto jokerPtr = reinterpret_cast<joker_t *>(data);
+    const auto jokerPtr = reinterpret_cast<joker_t *>(data);
     if (!jokerPtr || !jokerPtr->joker_ci_opaque)
         return;
-    auto jokerCiPtr = reinterpret_cast<joker_ci_t *>(jokerPtr->joker_ci_opaque);
 
-    /* print supported CAIDs */
-    QVector<uint8_t> caIds;
-    printf("  Supported CAIDs: \n");
-    for (int i = 0; i < CAID_MAX_COUNT; i++) {
-        if (!jokerCiPtr->ca_ids[i])
-            break; /* end of list detected */
-        caIds.append(jokerCiPtr->ca_ids[i]);
+    const auto jokerCiPtr = reinterpret_cast<const joker_ci_t *>(jokerPtr->joker_ci_opaque);
+
+    QVector<int> caids;
+    for (int i = 0; i < CAID_MAX_COUNT; ++i) {
+        const auto caid = jokerCiPtr->ca_ids[i];
+        if (!caid)
+            break;
+        caids.append(caid);
     }
 
-    auto event = new CaidsEvent(caIds);
+    auto event = new CaidsEvent(caids);
     qApp->postEvent(priv->messageHandler, event);
 }
 
@@ -295,16 +301,29 @@ void JokerAccessProviderPrivate::open()
 
     ::memset(&joker, 0, sizeof(joker));
     joker.status_callback = jokerStatusCallback;
-    joker.ci_info_callback = jokerCiInfoCallback;
-    joker.ci_caid_callback = jokerCiCaidCallback;
+    joker.ci_info_callback = jokerCamInfoCallback;
+    joker.ci_caid_callback = jokerCaidsCallback;
     joker.libusb_verbose = 0;
-    const auto result = ::joker_open(&joker);
-    ::memset(&pool, 0, sizeof(pool));
-    if (result != 0) {
-        q->setError(JokerAccessProvider::ProviderError::OpenError,
-                    JokerAccessProvider::tr("Unable to open device"));
-        q->setStatus(JokerAccessProvider::ProviderStatus::DeviceClosedStatus);
-        return;
+
+    {
+        const auto result = ::joker_open(&joker);
+        ::memset(&pool, 0, sizeof(pool));
+        if (result != 0) {
+            q->setError(JokerAccessProvider::ProviderError::OpenError,
+                        JokerAccessProvider::tr("Unable to open device"));
+            q->setStatus(JokerAccessProvider::ProviderStatus::DeviceClosedStatus);
+            return;
+        }
+    }
+
+    {
+        const auto result = ::joker_ci(&joker);
+        if (result != 0) {
+            q->setError(JokerAccessProvider::ProviderError::OpenError,
+                        JokerAccessProvider::tr("Unable to initialize the CAM module"));
+            q->setStatus(JokerAccessProvider::ProviderStatus::DeviceClosedStatus);
+            return;
+        }
     }
 
     q->setStatus(JokerAccessProvider::ProviderStatus::DeviceOpenedStatus);
@@ -541,20 +560,43 @@ void JokerAccessProviderPrivate::processProgramUpdateEvent(QEvent *event)
 
 void JokerAccessProviderPrivate::processCamInfoEvent(QEvent *event)
 {
-    const auto updateEvent = static_cast<CAMInfoEvent *>(event);
+    const auto camInfoEvent = static_cast<CamInfoEvent *>(event);
 
     Q_Q(JokerAccessProvider);
-    q->setCamInfo({updateEvent->m_applicationType, updateEvent->m_applicationMaacturer,
-                  updateEvent->m_manufacturerCode, updateEvent->m_menuString,
-                  updateEvent->m_camInfoString});
+
+    const auto hexAplicationType = QString(QLatin1String("0x%1"))
+            .arg(camInfoEvent->m_applicationType, 2, 16, QLatin1Char('0'));
+
+    const auto hexApplicationManufacturer = QString(QLatin1String("0x%1"))
+            .arg(camInfoEvent->m_applicationManufacturer, 4, 16, QLatin1Char('0'));
+
+    const auto hexManufacturerCode = QString(QLatin1String("0x%1"))
+            .arg(camInfoEvent->m_manufacturerCode, 4, 16, QLatin1Char('0'));
+
+    const JokerCamInfo camInfo(hexAplicationType,
+                               hexApplicationManufacturer,
+                               hexManufacturerCode,
+                               camInfoEvent->m_menuString,
+                               camInfoEvent->m_infoString);
+    q->setCamInfo(camInfo);
+    q->setCamDetected(true);
 }
 
 void JokerAccessProviderPrivate::processCaidsEvent(QEvent *event)
 {
-    const auto updateEvent = static_cast<CaidsEvent *>(event);
+    const auto caidsEvent = static_cast<CaidsEvent *>(event);
 
     Q_Q(JokerAccessProvider);
-    q->setCaids(updateEvent->m_caIds);
+
+    // TODO: It is better to use the std algorithms here!
+    const auto caids = caidsEvent->m_caids;
+    QStringList hexCaids;
+    for (const auto caid : qAsConst(caids)) {
+        const auto hexCaid = QString(QLatin1String("0x%1")).arg(caid, 4, 16, QLatin1Char('0'));
+        hexCaids << hexCaid;
+    }
+
+    q->setCaids(hexCaids.join(QLatin1String(", ")));
 }
 
 void JokerAccessProviderPrivate::processChannelStatusEvent(QEvent *event)

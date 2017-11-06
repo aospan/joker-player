@@ -44,6 +44,8 @@ public:
     int signalErrorsCount = 0;
     bool signalLocked = false;
     bool camDetected = false;
+    JokerCamInfo camInfo;
+    QString caids;
     bool antennaPowered = false;
     QTimer *discoveryTimer = nullptr;
     QTimer *lockTimer = nullptr;

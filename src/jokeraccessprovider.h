@@ -13,14 +13,43 @@ class JokerSettingsStorage;
 
 class JokerAccessProviderPrivate;
 
-struct CamInfo
+// JokerCamInfo
+
+class JokerCamInfo
 {
-    uint8_t m_applicationType = 0;
-    uint16_t m_applicationMaacturer = 0;
-    uint16_t m_manufacturerCode = 0;
+    Q_GADGET
+
+    Q_PROPERTY(QString applicationType MEMBER m_applicationType)
+    Q_PROPERTY(QString applicationManufacturer MEMBER m_applicationManufacturer)
+    Q_PROPERTY(QString manufacturerCode MEMBER m_manufacturerCode)
+    Q_PROPERTY(QString menuString MEMBER m_menuString)
+    Q_PROPERTY(QString infoString MEMBER m_infoString)
+
+public:
+    explicit JokerCamInfo(const QString &applicationType = QString(),
+                          const QString &applicationManufacturer = QString(),
+                          const QString &manufacturerCode = QString(),
+                          const QString &menuString = QString(),
+                          const QString &infoString = QString());
+
+    bool operator==(const JokerCamInfo &other) const;
+    bool operator!=(const JokerCamInfo &other) const;
+
+    QString m_applicationType;
+    QString m_applicationManufacturer;
+    QString m_manufacturerCode;
     QString m_menuString;
-    QString m_camInfoString;
+    QString m_infoString;
 };
+
+Q_DECLARE_TYPEINFO(JokerCamInfo, Q_MOVABLE_TYPE);
+Q_DECLARE_METATYPE(JokerCamInfo)
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, const JokerCamInfo &camInfo);
+#endif // QT_NO_DEBUG_STREAM
+
+// JokerAccessProvider
 
 class JokerAccessProvider : public QObject
 {
@@ -43,6 +72,10 @@ class JokerAccessProvider : public QObject
 
     Q_PROPERTY(bool camDetected READ isCamDetected
                NOTIFY camDetectedChanged)
+    Q_PROPERTY(JokerCamInfo camInfo READ camInfo
+               NOTIFY camInfoChanged)
+    Q_PROPERTY(QString caids READ caids
+               NOTIFY caidsChanged)
 
     Q_PROPERTY(ProviderStatus status READ status
                NOTIFY statusChanged)
@@ -114,6 +147,8 @@ public:
     bool isSignalLocked() const;
 
     bool isCamDetected() const;
+    JokerCamInfo camInfo() const;
+    QString caids() const;
 
     bool isAntennaPowered() const;
     void setAntennaPowered(bool antennaPowered);
@@ -137,8 +172,6 @@ signals:
 
     void programDiscovered(const JokerProgram &program);
     void programUpdated(const JokerProgram &program);
-    void caidsUpdated(const QVector<uint8_t>& _caids);
-    void camInfoUpdated(CamInfo ci);
 
     void scanningProgressChanged(double progress);
     void scanningChannelChanged(const QString &standardName, int frequencyMhz);
@@ -149,6 +182,8 @@ signals:
     void signalErrorsCountChanged(int count);
     void signalLockedChanged(bool locked);
     void camDetectedChanged(bool detected);
+    void camInfoChanged(const JokerCamInfo &camInfo);
+    void caidsChanged(const QString &caids);
     void antennaPowerChanged(bool on);
 
     void discoveryJobIndexChanged(int discoveryJobIndex);
@@ -167,13 +202,13 @@ private:
     void setSignalLocked(bool locked);
 
     void setCamDetected(bool detected);
+    void setCamInfo(const JokerCamInfo &camInfo);
+    void setCaids(const QString &caids);
 
     void setDiscoveryJobIndex(int discoveryJobIndex);
     void setDiscoveryJobsCount(int discoveryJobsCount);
 
     void processProgram(const JokerProgram &program);
-    void setCamInfo(CamInfo ci);
-    void setCaids(const QVector<uint8_t>&);
 
     void registerMediaStream(JokerPlayer *player);
     void unregisterMediaStream(JokerPlayer *player);
