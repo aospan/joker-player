@@ -6,6 +6,51 @@
 
 Q_DECLARE_LOGGING_CATEGORY(jkAccessProvider)
 
+// JokerCamInfo
+
+JokerCamInfo::JokerCamInfo(const QString &applicationType,
+                           const QString &applicationManufacturer,
+                           const QString &manufacturerCode,
+                           const QString &menuString,
+                           const QString &infoString)
+    : m_applicationType(applicationType)
+    , m_applicationManufacturer(applicationManufacturer)
+    , m_manufacturerCode(manufacturerCode)
+    , m_menuString(menuString)
+    , m_infoString(infoString)
+{
+}
+
+bool JokerCamInfo::operator==(const JokerCamInfo &other) const
+{
+    return m_applicationType == other.m_applicationType
+            && m_applicationManufacturer == other.m_applicationManufacturer
+            && m_manufacturerCode == other.m_manufacturerCode
+            && m_menuString == other.m_menuString
+            && m_infoString == other.m_infoString
+            ;
+}
+
+bool JokerCamInfo::operator!=(const JokerCamInfo &other) const
+{
+    return !(*this == other);
+}
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, const JokerCamInfo &camInfo)
+{
+    debug << "type:" << camInfo.m_applicationType
+          << "mfg:" << camInfo.m_applicationManufacturer
+          << "code:" << camInfo.m_manufacturerCode
+          << "menu:" << camInfo.m_menuString
+          << "info:" << camInfo.m_infoString
+             ;
+    return debug;
+}
+#endif // QT_NO_DEBUG_STREAM
+
+// JokerAccessProvider
+
 int JokerAccessProviderPrivate::discoveringChannelIndex() const
 {
     return discoveryJobIndexes.at(discoveryJobIndex);
@@ -354,6 +399,38 @@ void JokerAccessProvider::setCamDetected(bool detected)
     d->camDetected = detected;
     qCDebug(jkAccessProvider) << "Set CAM detected:" << d->camDetected;
     emit camDetectedChanged(d->camDetected);
+}
+
+JokerCamInfo JokerAccessProvider::camInfo() const
+{
+    return d_func()->camInfo;
+}
+
+void JokerAccessProvider::setCamInfo(const JokerCamInfo &camInfo)
+{
+    Q_D(JokerAccessProvider);
+
+    if (d->camInfo == camInfo)
+        return;
+    d->camInfo = camInfo;
+    qCDebug(jkAccessProvider) << "Set CAM info:" << d->camInfo;
+    emit camInfoChanged(d->camInfo);
+}
+
+QString JokerAccessProvider::caids() const
+{
+    return d_func()->caids;
+}
+
+void JokerAccessProvider::setCaids(const QString &caids)
+{
+    Q_D(JokerAccessProvider);
+
+    if (d->caids == caids)
+        return;
+    d->caids = caids;
+    qCDebug(jkAccessProvider) << "Set caids:" << d->caids;
+    emit caidsChanged(d->caids);
 }
 
 bool JokerAccessProvider::isAntennaPowered() const

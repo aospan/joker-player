@@ -2,6 +2,7 @@ import QtQuick 2.6
 import QtQuick.Layouts 1.3
 
 Item {
+    id: root
 
     ColumnLayout {
         anchors.centerIn: parent
@@ -14,17 +15,26 @@ Item {
         }
 
         BasicLabel {
-            text: qsTr("CAM application manufacturer: 4a60")
+            text: qsTr("CAM application manufacturer: %1")
+                .arg(jkAccessProvider.camInfo.applicationManufacturer);
             Layout.alignment: Qt.AlignHCenter
         }
 
         BasicLabel {
-            text: qsTr("CAM Menu string: Pocket FTA+")
+            text: qsTr("CAM Menu string: %1")
+                .arg(jkAccessProvider.camInfo.menuString)
             Layout.alignment: Qt.AlignHCenter
         }
 
-        BasicLabel {
-            text: qsTr("CAM supports the following ca sistem ids: 0x4a60")
+        Item {
+            width: root.width
+            height: root.height / 6
+            BasicLabel {
+                anchors.fill: parent
+                text: qsTr("CAM supports the following ca sistem ids: %1")
+                    .arg(jkAccessProvider.caids);
+                wrapMode: Text.WordWrap
+            }
             Layout.alignment: Qt.AlignHCenter
         }
     }

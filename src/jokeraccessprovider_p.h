@@ -11,6 +11,7 @@
 #else
 #  include <u_drv_tune.h>
 #  include <joker_ts.h>
+#  include <joker_ci.h>
 #endif
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
@@ -43,6 +44,8 @@ public:
     int signalErrorsCount = 0;
     bool signalLocked = false;
     bool camDetected = false;
+    JokerCamInfo camInfo;
+    QString caids;
     bool antennaPowered = false;
     QTimer *discoveryTimer = nullptr;
     QTimer *lockTimer = nullptr;
@@ -66,6 +69,8 @@ public:
     void startNextChannelDiscovery();
     void processProgramUpdateEvent(QEvent *event);
     void processChannelStatusEvent(QEvent *event);
+    void processCamInfoEvent(QEvent *event);
+    void processCaidsEvent(QEvent *event);
 
     big_pool_t pool;
     joker_t joker;
