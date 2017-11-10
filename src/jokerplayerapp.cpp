@@ -14,6 +14,7 @@
 #include <QLoggingCategory>
 
 #include <VLCQtQml/Qml.h>
+#include <VLCQtCore/Common.h>
 
 Q_LOGGING_CATEGORY(jkApplication, "joker.app")
 Q_LOGGING_CATEGORY(jkSettingsStorage, "joker.settings.storage")
@@ -43,6 +44,11 @@ int main(int argc, char *argv[])
 
     // Register vlc-qt types.
     VlcQml::registerTypes();
+
+    // set VLC plugins search path as executable path + "/../"
+    // example of final path for plugins lookup: 
+    // /Users/aospan/src/joker-player/build/src/joker-player.app/Contents/MacOS/../
+    VlcCommon::setPluginPath(QCoreApplication::applicationDirPath() + QString::fromLatin1("/../"));
 
     // Register own types.
     qmlRegisterType<JokerSettingsStorage>("tv.jokersys.com", 1, 0, "JokerSettingsStorage");

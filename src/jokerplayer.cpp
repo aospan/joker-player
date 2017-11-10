@@ -15,15 +15,10 @@ Q_DECLARE_LOGGING_CATEGORY(jkPlayer)
 
 JokerPlayer::JokerPlayer(QObject *parent)
     : VlcQmlSource(parent)
+    , m_instance(new VlcInstance(VlcCommon::args(), this))
+    , m_player(new VlcMediaPlayer(m_instance))
 {
     qCDebug(jkPlayer) << "Create" << this;
-    // set VLC plugins search path as executable path + "/../"
-    // example of final path for plugins lookup: 
-    // /Users/aospan/src/joker-player/build/src/joker-player.app/Contents/MacOS/../
-    VlcCommon::setPluginPath(QCoreApplication::applicationDirPath() + QString::fromLatin1("/../"));
-
-    m_instance = new VlcInstance(VlcCommon::args(), this);
-    m_player = new VlcMediaPlayer(m_instance);
 
     // TODO: Only for debugginng, need to remove on release!
     ///m_instance->setLogLevel(Vlc::DebugLevel);
