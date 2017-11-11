@@ -50,8 +50,9 @@ Item {
         }
 
         BasicLabel {
-            text: qsTr("Pochet FTA+\n0. Quit menu\n1. Information\nEnter option:")
-            Layout.alignment: Qt.AlignHCenter
+            text: jkAccessProvider.mmiCamMenu
+            horizontalAlignment: Text.AlignLeft
+            onTextChanged: console.log(text)
         }
     }
 
@@ -68,6 +69,7 @@ Item {
         spacing: 20
 
         BasicLineEdit {
+            id: command
             placeholderText: qsTr("Enter value")
             background: Image {
                 source: "qrc:/images/cam-module-line-edit-bg.png"
@@ -78,6 +80,12 @@ Item {
         BasicPushButton {
             caption: qsTr("Send")
             hint: qsTr("Send CAM module value")
+            onClicked: {
+                jkAccessProvider.sendMmiCommand(command.text);
+                command.text = "";
+            }
         }
     }
+
+    Component.onCompleted: jkAccessProvider.startMmiSession()
 }

@@ -70,6 +70,8 @@ class JokerAccessProvider : public QObject
     Q_PROPERTY(bool signalLocked READ isSignalLocked
                NOTIFY signalLockedChanged)
 
+    Q_PROPERTY(QString mmiCamMenu READ mmiCamMenu
+               NOTIFY mmiCamMenuChanged)
     Q_PROPERTY(bool camDetected READ isCamDetected
                NOTIFY camDetectedChanged)
     Q_PROPERTY(JokerCamInfo camInfo READ camInfo
@@ -146,6 +148,8 @@ public:
     int signalErrorsCount() const;
     bool isSignalLocked() const;
 
+    QString mmiCamMenu() const;
+
     bool isCamDetected() const;
     JokerCamInfo camInfo() const;
     QString caids() const;
@@ -164,6 +168,9 @@ public:
     Q_INVOKABLE void startScan();
     Q_INVOKABLE void stopScan();
 
+    Q_INVOKABLE void startMmiSession();
+    Q_INVOKABLE void sendMmiCommand(const QString &command);
+
 signals:
     void settingsStorageChanged(JokerSettingsStorage *settingsStorage);
 
@@ -181,6 +188,9 @@ signals:
     void signalRadioFrequencyLevelChanged(double level);
     void signalErrorsCountChanged(int count);
     void signalLockedChanged(bool locked);
+
+    void mmiCamMenuChanged(const QString &mmiCamMenu);
+
     void camDetectedChanged(bool detected);
     void camInfoChanged(const JokerCamInfo &camInfo);
     void caidsChanged(const QString &caids);
@@ -200,6 +210,8 @@ private:
     void setSignalRadioFrequencyLevel(double level);
     void setSignalErrorsCount(int count);
     void setSignalLocked(bool locked);
+
+    void setMmiCamMenu(const QString &mmiCamMenu);
 
     void setCamDetected(bool detected);
     void setCamInfo(const JokerCamInfo &camInfo);

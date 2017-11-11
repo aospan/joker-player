@@ -7,7 +7,7 @@ find_package(Qt5 5.9.0 REQUIRED COMPONENTS Core Quick Sql)
 find_package(VLCQt REQUIRED COMPONENTS Qml)
 
 if(NOT USE_STUB_JOKER)
-    find_package(jokertv 1.3.0 REQUIRED)
+    find_package(jokertv 1.5.1 REQUIRED)
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         find_library(LIBUDEV udev REQUIRED)
