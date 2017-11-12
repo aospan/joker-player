@@ -447,12 +447,12 @@ void JokerAccessProvider::setCamInfo(const JokerCamInfo &camInfo)
     emit camInfoChanged(d->camInfo);
 }
 
-QString JokerAccessProvider::caids() const
+QStringList JokerAccessProvider::caids() const
 {
     return d_func()->caids;
 }
 
-void JokerAccessProvider::setCaids(const QString &caids)
+void JokerAccessProvider::setCaids(const QStringList &caids)
 {
     Q_D(JokerAccessProvider);
 

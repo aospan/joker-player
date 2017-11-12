@@ -76,7 +76,7 @@ class JokerAccessProvider : public QObject
                NOTIFY camDetectedChanged)
     Q_PROPERTY(JokerCamInfo camInfo READ camInfo
                NOTIFY camInfoChanged)
-    Q_PROPERTY(QString caids READ caids
+    Q_PROPERTY(QStringList caids READ caids
                NOTIFY caidsChanged)
 
     Q_PROPERTY(ProviderStatus status READ status
@@ -152,7 +152,7 @@ public:
 
     bool isCamDetected() const;
     JokerCamInfo camInfo() const;
-    QString caids() const;
+    QStringList caids() const;
 
     bool isAntennaPowered() const;
     void setAntennaPowered(bool antennaPowered);
@@ -193,7 +193,7 @@ signals:
 
     void camDetectedChanged(bool detected);
     void camInfoChanged(const JokerCamInfo &camInfo);
-    void caidsChanged(const QString &caids);
+    void caidsChanged(const QStringList &caids);
     void antennaPowerChanged(bool on);
 
     void discoveryJobIndexChanged(int discoveryJobIndex);
@@ -215,7 +215,7 @@ private:
 
     void setCamDetected(bool detected);
     void setCamInfo(const JokerCamInfo &camInfo);
-    void setCaids(const QString &caids);
+    void setCaids(const QStringList &caids);
 
     void setDiscoveryJobIndex(int discoveryJobIndex);
     void setDiscoveryJobsCount(int discoveryJobsCount);

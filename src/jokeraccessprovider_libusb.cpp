@@ -658,7 +658,7 @@ void JokerAccessProviderPrivate::processCaidsEvent(QEvent *event)
         hexCaids << hexCaid;
     }
 
-    q->setCaids(hexCaids.join(QLatin1String(", ")));
+    q->setCaids(hexCaids);
 }
 
 void JokerAccessProviderPrivate::processMmiEvent(QEvent *event)

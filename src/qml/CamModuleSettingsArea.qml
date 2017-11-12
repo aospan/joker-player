@@ -6,88 +6,94 @@ Item {
 
     ColumnLayout {
         anchors.centerIn: parent
-        anchors.verticalCenterOffset: -160
 
-        BasicLabel {
-            text: qsTr("CAM info")
-            font.weight: Font.Medium
-            Layout.alignment: Qt.AlignHCenter
-        }
-
-        BasicLabel {
-            text: qsTr("CAM application manufacturer: %1")
-                .arg(jkAccessProvider.camInfo.applicationManufacturer);
-            Layout.alignment: Qt.AlignHCenter
-        }
-
-        BasicLabel {
-            text: qsTr("CAM Menu string: %1")
-                .arg(jkAccessProvider.camInfo.menuString)
-            Layout.alignment: Qt.AlignHCenter
-        }
-
-        Item {
-            width: root.width
-            height: root.height / 6
+        ColumnLayout {
             BasicLabel {
-                anchors.fill: parent
-                text: qsTr("CAM supports the following ca sistem ids: %1")
-                    .arg(jkAccessProvider.caids);
-                wrapMode: Text.WordWrap
+                text: qsTr("CAM info")
+                font.weight: Font.Medium
+                Layout.alignment: Qt.AlignHCenter
             }
+
+            BasicLabel {
+                text: qsTr("CAM application manufacturer: %1")
+                        .arg(jkAccessProvider.camInfo.applicationManufacturer);
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            BasicLabel {
+                text: qsTr("CAM Menu string: %1")
+                        .arg(jkAccessProvider.camInfo.menuString)
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            BasicLabel {
+                text: {
+                    var caids = jkAccessProvider.caids;
+                    var formattedCaids = "";
+                    for (var index = 0; index < caids.length; ++index) {
+                        if (index === (caids.length - 1)) {
+                            formattedCaids += caids[index];
+                        } else {
+                            var mod = index % 10;
+                            if (mod === 0)
+                                formattedCaids += "\n";
+                            formattedCaids += caids[index] + ", ";
+                        }
+                    }
+
+                    return qsTr("CAM supports the following ca sistem ids:%1")
+                        .arg(formattedCaids)
+                }
+                horizontalAlignment: Text.AlignHCenter
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            Image {
+                id: delimiter
+                source: "qrc:/images/cam-module-info-delimiter.png"
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            BasicLabel {
+                text: qsTr("MMI CAM Menu")
+                font.weight: Font.Medium
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            BasicLabel {
+                text: jkAccessProvider.mmiCamMenu
+                horizontalAlignment: Text.AlignHCenter
+                Layout.alignment: Qt.AlignHCenter
+            }
+
             Layout.alignment: Qt.AlignHCenter
         }
-    }
 
-    ColumnLayout {
-        anchors.centerIn: parent
-        anchors.verticalCenterOffset: 40
+        RowLayout {
+            spacing: 20
 
-        BasicLabel {
-            text: qsTr("MMI CAM Menu")
-            font.weight: Font.Medium
+            BasicLineEdit {
+                id: command
+                hoverEnabled: false
+                placeholderText: qsTr("Enter value")
+                background: Image {
+                    source: "qrc:/images/cam-module-line-edit-bg.png"
+                }
+                Keys.onReturnPressed: sendMmiCommand();
+
+                function sendMmiCommand() {
+                    jkAccessProvider.sendMmiCommand(command.text);
+                    command.text = "";
+                }
+            }
+
+            BasicPushButton {
+                hoverEnabled: false
+                caption: qsTr("Send")
+                onClicked: command.sendMmiCommand();
+            }
+
             Layout.alignment: Qt.AlignHCenter
-        }
-
-        BasicLabel {
-            text: jkAccessProvider.mmiCamMenu
-            horizontalAlignment: Text.AlignLeft
-            onTextChanged: console.log(text)
-        }
-    }
-
-    Image {
-        anchors.centerIn: parent
-        anchors.verticalCenterOffset: -60
-        source: "qrc:/images/cam-module-info-delimiter.png"
-    }
-
-    RowLayout {
-        anchors.centerIn: parent
-        anchors.verticalCenterOffset: 135
-
-        spacing: 20
-
-        BasicLineEdit {
-            id: command
-            hoverEnabled: false
-            placeholderText: qsTr("Enter value")
-            background: Image {
-                source: "qrc:/images/cam-module-line-edit-bg.png"
-            }
-            Keys.onReturnPressed: {
-                jkAccessProvider.sendMmiCommand(command.text);
-                command.text = "";
-            }
-        }
-
-        BasicPushButton {
-            hoverEnabled: false
-            caption: qsTr("Send")
-            onClicked: {
-                jkAccessProvider.sendMmiCommand(command.text);
-                command.text = "";
-            }
         }
     }
 

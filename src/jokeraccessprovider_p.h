@@ -49,7 +49,7 @@ public:
     QString mmiCamMenu;
     bool camDetected = false;
     JokerCamInfo camInfo;
-    QString caids;
+    QStringList caids;
     bool antennaPowered = false;
     QTimer *discoveryTimer = nullptr;
     QTimer *lockTimer = nullptr;
