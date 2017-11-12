@@ -70,16 +70,20 @@ Item {
 
         BasicLineEdit {
             id: command
+            hoverEnabled: false
             placeholderText: qsTr("Enter value")
             background: Image {
                 source: "qrc:/images/cam-module-line-edit-bg.png"
             }
-            hint: qsTr("Enter CAM module value")
+            Keys.onReturnPressed: {
+                jkAccessProvider.sendMmiCommand(command.text);
+                command.text = "";
+            }
         }
 
         BasicPushButton {
+            hoverEnabled: false
             caption: qsTr("Send")
-            hint: qsTr("Send CAM module value")
             onClicked: {
                 jkAccessProvider.sendMmiCommand(command.text);
                 command.text = "";
