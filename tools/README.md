@@ -15,3 +15,7 @@ result will be placed into file
 joker_player-v1.0.3.dmg
 ```
 This dmg image is fully signed and can be distributed on the web site.
+
+Open dmg file and drag "joker-player" to the Applications folder on your computer.
+
+![](mac-install.png "Joker Player install on MAC")
