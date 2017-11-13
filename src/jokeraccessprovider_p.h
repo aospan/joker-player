@@ -12,6 +12,7 @@
 #  include <u_drv_tune.h>
 #  include <joker_ts.h>
 #  include <joker_ci.h>
+#  include <joker_en50221.h>
 #endif
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
@@ -28,6 +29,8 @@ public:
     void close();
     void startScan();
     void stopScan();
+    void startMmiSession();
+    void sendMmiCommand(const QString &command);
     void registerMediaStream(JokerPlayer *player);
     void unregisterMediaStream(JokerPlayer *player);
     void setupActiveChannel();
@@ -43,9 +46,10 @@ public:
     double signalRadioFrequencyLevel = 0.0;
     int signalErrorsCount = 0;
     bool signalLocked = false;
+    QString mmiCamMenu;
     bool camDetected = false;
     JokerCamInfo camInfo;
-    QString caids;
+    QStringList caids;
     bool antennaPowered = false;
     QTimer *discoveryTimer = nullptr;
     QTimer *lockTimer = nullptr;
@@ -71,6 +75,7 @@ public:
     void processChannelStatusEvent(QEvent *event);
     void processCamInfoEvent(QEvent *event);
     void processCaidsEvent(QEvent *event);
+    void processMmiEvent(QEvent *event);
 
     big_pool_t pool;
     joker_t joker;

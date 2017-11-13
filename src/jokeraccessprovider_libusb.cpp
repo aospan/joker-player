@@ -25,6 +25,7 @@ const QEvent::Type kProgramUpdateEventType = static_cast<QEvent::Type>(QEvent::U
 const QEvent::Type kChannelStatusEventType = static_cast<QEvent::Type>(QEvent::User + 2);
 const QEvent::Type kCamInfoEventType = static_cast<QEvent::Type>(QEvent::User + 3);
 const QEvent::Type kCaidsEventType = static_cast<QEvent::Type>(QEvent::User + 4);
+const QEvent::Type kMmiEventType = static_cast<QEvent::Type>(QEvent::User + 5);
 
 // ProgramUpdateEvent
 
@@ -108,6 +109,20 @@ public:
     QVector<int> m_caids;
 };
 
+// MmiEvent
+
+class MmiEvent : public QEvent
+{
+public:
+    explicit MmiEvent(const QString &menu)
+        : QEvent(kMmiEventType)
+        , m_menu(menu)
+    {
+    }
+
+    QString m_menu;
+};
+
 // JokerMessageHandler
 
 class JokerMessageHandler : public QObject
@@ -139,6 +154,8 @@ public:
             dptr->processCamInfoEvent(event);
         } else if (eventType == kCaidsEventType) {
             dptr->processCaidsEvent(event);
+        } else if (eventType == kMmiEventType) {
+            dptr->processMmiEvent(event);
         }
     }
 
@@ -269,6 +286,25 @@ void jokerCaidsCallback(void *data)
     qApp->postEvent(priv->messageHandler, event);
 }
 
+static void jokerMmiCallback(void *data, unsigned char *buf, int len)
+{
+    if (qProviders()->isEmpty())
+        return;
+
+    const JokerAccessProviderPrivate *priv = qProviders()->first();
+    if (!priv)
+        return;
+
+    const auto jokerPtr = reinterpret_cast<joker_t *>(data);
+    if (!jokerPtr || !jokerPtr->joker_en50221_opaque)
+        return;
+
+    const auto menu = QString::fromUtf8(reinterpret_cast<const char *>(buf), len);
+
+    auto event = new MmiEvent(menu);
+    qApp->postEvent(priv->messageHandler, event);
+}
+
 JokerAccessProviderPrivate::JokerAccessProviderPrivate(JokerAccessProvider *q)
     : q_ptr(q)
 {
@@ -386,6 +422,32 @@ void JokerAccessProviderPrivate::stopScan()
     Q_Q(JokerAccessProvider);
     q->setStatus(JokerAccessProvider::ProviderStatus::DeviceOpenedStatus);
     qCDebug(jkAccessProvider) << "Discovery stopped";
+}
+
+void JokerAccessProviderPrivate::startMmiSession()
+{
+    const auto result = joker_en50221_mmi_enter(&joker, &jokerMmiCallback);
+    if (result != 0) {
+        qCWarning(jkAccessProvider) << "Unable to startup the MMI session";
+
+        Q_Q(JokerAccessProvider);
+        q->setError(JokerAccessProvider::ProviderError::OperationError,
+                    JokerAccessProvider::tr("Unable to startup the MMI session"));
+    };
+}
+
+void JokerAccessProviderPrivate::sendMmiCommand(const QString &command)
+{
+    const QByteArray buffer = command.toUtf8();
+    const auto result = joker_en50221_mmi_call(&joker, reinterpret_cast<const unsigned char *>(buffer.constData()),
+                                               buffer.size());
+    if (result != 0) {
+        qCWarning(jkAccessProvider) << "Unable to send the MMI command";
+
+        Q_Q(JokerAccessProvider);
+        q->setError(JokerAccessProvider::ProviderError::OperationError,
+                    JokerAccessProvider::tr("Unable to send the MMI command"));
+    };
 }
 
 void JokerAccessProviderPrivate::processDiscoveryInterval()
@@ -596,7 +658,17 @@ void JokerAccessProviderPrivate::processCaidsEvent(QEvent *event)
         hexCaids << hexCaid;
     }
 
-    q->setCaids(hexCaids.join(QLatin1String(", ")));
+    q->setCaids(hexCaids);
+}
+
+void JokerAccessProviderPrivate::processMmiEvent(QEvent *event)
+{
+    const auto mmiEvent = static_cast<MmiEvent *>(event);
+
+    Q_Q(JokerAccessProvider);
+
+    const auto menu = mmiEvent->m_menu;
+    q->setMmiCamMenu(menu);
 }
 
 void JokerAccessProviderPrivate::processChannelStatusEvent(QEvent *event)

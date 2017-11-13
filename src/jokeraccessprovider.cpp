@@ -172,6 +172,20 @@ void JokerAccessProvider::stopScan()
     setDiscoveryJobsCount(d->discoveryJobIndexes.count());
 }
 
+void JokerAccessProvider::startMmiSession()
+{
+    Q_D(JokerAccessProvider);
+
+    d->startMmiSession();
+}
+
+void JokerAccessProvider::sendMmiCommand(const QString &command)
+{
+    Q_D(JokerAccessProvider);
+
+    d->sendMmiCommand(command);
+}
+
 void JokerAccessProvider::registerMediaStream(JokerPlayer *player)
 {
     if (!player->m_instance) {
@@ -385,6 +399,22 @@ void JokerAccessProvider::setSignalLocked(bool locked)
     emit signalLockedChanged(d->signalLocked);
 }
 
+QString JokerAccessProvider::mmiCamMenu() const
+{
+    return d_func()->mmiCamMenu;
+}
+
+void JokerAccessProvider::setMmiCamMenu(const QString &mmiCamMenu)
+{
+    Q_D(JokerAccessProvider);
+
+    if (d->mmiCamMenu == mmiCamMenu)
+        return;
+    d->mmiCamMenu = mmiCamMenu;
+    qCDebug(jkAccessProvider) << "Set MMI CAM menu:" << d->mmiCamMenu;
+    emit mmiCamMenuChanged(d->mmiCamMenu);
+}
+
 bool JokerAccessProvider::isCamDetected() const
 {
     return d_func()->camDetected;
@@ -417,12 +447,12 @@ void JokerAccessProvider::setCamInfo(const JokerCamInfo &camInfo)
     emit camInfoChanged(d->camInfo);
 }
 
-QString JokerAccessProvider::caids() const
+QStringList JokerAccessProvider::caids() const
 {
     return d_func()->caids;
 }
 
-void JokerAccessProvider::setCaids(const QString &caids)
+void JokerAccessProvider::setCaids(const QStringList &caids)
 {
     Q_D(JokerAccessProvider);
 
