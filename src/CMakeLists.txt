@@ -84,6 +84,11 @@ add_executable(${PROJECT_NAME} MACOSX_BUNDLE WIN32
     jokerplayerapp.rc
 )
 
+# set MAC (OSx) bundle options. Ignored on other platforms
+set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_ICON_FILE "joker_player")
+set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER "com.jokersys.joker_player")
+set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST MacOSXBundleInfo.plist.in)
+
 if(USE_STUB_JOKER)
     target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Quick Qt5::Sql VLCQt::Qml)
 else(USE_STUB_JOKER)
