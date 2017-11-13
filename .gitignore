@@ -1,2 +1,4 @@
 tools/*.dmg
 tools/*.iconset
+build*
+*.user
