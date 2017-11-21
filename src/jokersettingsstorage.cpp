@@ -188,7 +188,7 @@ void JokerSettingsStorage::setPreset(const JokerLnbPreset &preset)
 
 void JokerSettingsStorage::openDatabase()
 {
-    const QString database = qApp->applicationDirPath() + QLatin1String("/joker-player.db");
+    const QString database = QDir::homePath() + QLatin1String("/joker-player.db");
     auto db = QSqlDatabase::addDatabase(QLatin1String("QSQLITE"), m_connection);
     db.setDatabaseName(database);
     if (!db.open()) {
