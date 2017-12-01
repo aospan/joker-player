@@ -58,6 +58,10 @@ ApplicationWindow {
         jkAccessProvider.open();
     }
 
+    Component.onDestruction: {
+        jkAccessProvider.close();
+    }
+
     background: Background {
         anchors.fill: parent
     }
