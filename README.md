@@ -14,7 +14,8 @@ LICENSE: GPLv2
  * Qt 5.9.0
  * libjokertv 1.3.0, project source: https://github.com/aospan/libjokertv.git
  * libvlc 3.0.0, project source: https://github.com/videolan/vlc.git
- * vlc-qt, project source: https://github.com/vlc-qt/vlc-qt
+ * vlc-qt, WARNING ! Please use following source with some fixes until it not upstreamed:
+	https://github.com/amigo421/vlc-qt
 
 # Compilation
 ```

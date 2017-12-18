@@ -86,7 +86,8 @@ void JokerAccessProvider::close()
     if (d->status != ProviderStatus::DeviceOpenedStatus
             && d->status != ProviderStatus::DeviceOpeningStatus
             && d->status != ProviderStatus::ProgramsDiscoveredStatus
-            && d->status != ProviderStatus::ProgramsDiscoveringStatus) {
+            && d->status != ProviderStatus::ProgramsDiscoveringStatus
+            && d->status != ProviderStatus::ChannelActivated) {
         setError(ProviderError::OperationError, tr("Provider is not open"));
         return;
     }

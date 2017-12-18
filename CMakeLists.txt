@@ -6,7 +6,7 @@ project(JokerTV)
 exec_program(
     "git"
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ARGS "describe --long"
+    ARGS "describe --long --always"
     OUTPUT_VARIABLE GIT_VERSION )
 
 add_definitions(-DGIT_VERSION="${GIT_VERSION}")

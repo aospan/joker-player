@@ -6,6 +6,7 @@ ListView {
     id: view
     clip: true
     currentIndex: -1
+    maximumFlickVelocity: 600
 
     onCurrentIndexChanged: {
         if (currentIndex === -1)
