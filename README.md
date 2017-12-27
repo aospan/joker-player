@@ -37,3 +37,7 @@ Specify custom Qt installation folder before running cmake:
 ```
 export CMAKE_PREFIX_PATH="/opt/qt/5.9.1/gcc_64/lib/cmake"
 ```
+or for OSx:
+```
+export CMAKE_PREFIX_PATH="/usr/local//Cellar/qt/5.9.2/lib/cmake"
+```
