@@ -1,7 +1,7 @@
 import QtQuick 2.6
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.0
 
 Image {
     source: "qrc:/images/terrstrial-antenna-settings-bg.png"
