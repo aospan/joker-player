@@ -3,7 +3,7 @@ project(joker-player)
 option(USE_STUB_JOKER "Build with fake joker provider" OFF)
 option(USE_DEVELOPMENT_BUILD "Build with development features" OFF)
 
-find_package(Qt5 5.9.0 REQUIRED COMPONENTS Core Quick Sql)
+find_package(Qt5 5.7.0 REQUIRED COMPONENTS Core Quick Sql)
 find_package(VLCQt REQUIRED COMPONENTS Qml)
 
 if(NOT USE_STUB_JOKER)

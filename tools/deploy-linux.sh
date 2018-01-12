@@ -9,8 +9,14 @@ TMPDIR="dist_tmp"
 QMAKE="/mnt/sdd/src/qt/5.9.1/gcc_64/bin/qmake"
 DEPLOYQT="/mnt/sdd/src/qt/5.9.1/gcc_64/bin/linuxdeployqt"
 
+if cat /proc/cpuinfo  | grep ARM; then
+	ARCH=ARM
+else
+	ARCH=x86_64
+fi
+
 VER="$(git describe --tags)"
-IMGNAME=Joker_Player-linux-x86_64-$VER.AppImage
+IMGNAME=Joker_Player-linux-$ARCH-$VER.AppImage
 
 while getopts ":d:i:q:e:" opt; do
     case ${opt} in
@@ -71,7 +77,7 @@ EOF
 # generate final AppImage
 $DEPLOYQT $TMPDIR/joker-player.desktop -appimage -bundle-non-qt-libs -qmldir=$JDIR/../../src/qml/ -qmake=$QMAKE
 
-#rename Joker_Player-x86_64.AppImage
-mv Joker_Player-x86_64.AppImage $IMGNAME
+#rename 
+mv Joker_Player-$ARCH.AppImage $IMGNAME
 
 echo "Done. Result: $IMGNAME"

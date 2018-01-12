@@ -2,6 +2,7 @@
 
 Build dmg image by following command
 ```
+security unlock-keychain
 cd tools 
 ./deploy-mac.sh -d ../build/src/joker-player.app -i joker_player.icns -s "Developer ID Application: Abylay Ospan (6HF3M4G8WM)"
 ```

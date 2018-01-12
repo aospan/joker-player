@@ -1,12 +1,12 @@
 import QtQuick 2.6
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
 ListView {
     id: view
     clip: true
     currentIndex: -1
-    maximumFlickVelocity: 100
+    maximumFlickVelocity: 600
 
     onCurrentIndexChanged: {
         if (currentIndex === -1)
