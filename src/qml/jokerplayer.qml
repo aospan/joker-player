@@ -11,6 +11,7 @@ ApplicationWindow {
     visible: true;
     minimumWidth: 1020
     minimumHeight: 700
+    property int prevState : 0
 //    maximumWidth: 1020
 //    maximumHeight: 700
 
@@ -102,9 +103,12 @@ ApplicationWindow {
         id: dummyVideoOutput
         anchors.fill: parent
         onChildrenChanged: {
-            mainWindow.visibility = (children.length > 0)
-                    ? Window.FullScreen
-                    : Window.Windowed;
+            if (children.length > 0) {
+                prevState = mainWindow.visibility
+                mainWindow.visibility = Window.FullScreen
+            }
+            else
+                mainWindow.visibility = prevState
         }
     }
 
