@@ -36,6 +36,10 @@ Image {
                 onRatioChanged: updated(position, ratio)
             }
 
+            onCurrentIndexChanged: {
+                 settingsActivated = false;
+            }
+
             Layout.fillWidth: true
             Layout.fillHeight: true
         }
