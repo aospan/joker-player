@@ -573,6 +573,29 @@ void JokerSettingsStorage::saveProgram(const JokerProgram &program)
     m_timer->start();
 }
 
+void JokerSettingsStorage::deletePrograms() {
+    auto db = QSqlDatabase::database(m_connection);
+
+    if (!db.transaction()) {
+        qCCritical(jkSettingsStorage) << "Unable to start transaction:" << db.lastError();
+        return;
+    }
+
+    QSqlQuery query(db);
+    const QString truncateQuery = QLatin1String("delete from ")
+            + QLatin1String(kProgramsTable);
+
+    if (!query.exec(truncateQuery)) {
+
+        qCCritical(jkSettingsStorage) << "Unable to exec programs truncate query:" << db.lastError();
+    }
+    if (!db.commit()) {
+        qCCritical(jkSettingsStorage) << "Unable to finish transaction:" << db.lastError();
+        return;
+    }
+
+}
+
 QVector<JokerProgram> JokerSettingsStorage::storedPrograms() const
 {
     QVector<JokerProgram> programs;

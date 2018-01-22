@@ -59,17 +59,30 @@ void JokerProgramModel::addProgram(const JokerProgram &program)
 
 void JokerProgramModel::removeProgram(const JokerProgram &program)
 {
-    if (!m_programs.contains(program)) {
-        qCWarning(jkProgramModel) << "Nothing to remove, program is not in model:" << program;
-        return;
+    if (program.m_id >= 0) {
+        if (!m_programs.contains(program)) {
+            qCWarning(jkProgramModel) << "Nothing to remove, program is not in model:" << program;
+            return;
+        }
+
+        qCDebug(jkProgramModel) << "Remove program:" << program;
+
+        const auto row = m_programs.indexOf(program);
+        beginRemoveRows(QModelIndex(), row, row);
+        m_programs.takeAt(row);
+        endRemoveRows();
     }
+    else {
+        qCDebug(jkProgramModel) << "Remove all program";
 
-    qCDebug(jkProgramModel) << "Remove program:" << program;
+        const auto rowsCount = m_programs.count();
+        beginRemoveRows(QModelIndex(), 0, rowsCount -1);
+        m_programs.clear();
+        endRemoveRows();
 
-    const auto row = m_programs.indexOf(program);
-    beginRemoveRows(QModelIndex(), row, row);
-    m_programs.takeAt(row);
-    endRemoveRows();
+        if (m_settingsStorage)
+            m_settingsStorage->deletePrograms();
+    }
 }
 
 void JokerProgramModel::updateProgram(const JokerProgram &program)
@@ -111,6 +124,8 @@ void JokerProgramModel::setAccessProvider(JokerAccessProvider *accessProvider)
                    this, &JokerProgramModel::addProgram);
         disconnect(m_accessProvider, &JokerAccessProvider::programUpdated,
                    this, &JokerProgramModel::updateProgram);
+        disconnect(m_accessProvider, &JokerAccessProvider::programRemoved,
+                   this, &JokerProgramModel::removeProgram);
         // Add other disconnections!
     }
 
@@ -121,6 +136,8 @@ void JokerProgramModel::setAccessProvider(JokerAccessProvider *accessProvider)
                 this, &JokerProgramModel::addProgram);
         connect(m_accessProvider, &JokerAccessProvider::programUpdated,
                 this, &JokerProgramModel::updateProgram);
+        connect(m_accessProvider, &JokerAccessProvider::programRemoved,
+                   this, &JokerProgramModel::removeProgram);
         // Add others connections!
     }
 

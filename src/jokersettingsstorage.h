@@ -86,6 +86,7 @@ private:
 
     void saveChannel(const JokerChannel &channel);
 
+    void deletePrograms();
     void processPendings();
 
     QTimer *m_timer = nullptr;

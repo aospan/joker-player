@@ -56,6 +56,11 @@ Image {
                     Layout.fillWidth: true
                 }
 
+                BasicCheckBox {
+                    id: truncateButton
+                    text: "clean channel list"
+                }
+
                 BasicPushButton {
                     id: scanButton
                     caption: {
@@ -76,7 +81,7 @@ Image {
                         } else if (jkAccessProvider.status === JokerAccessProvider.DeviceOpenedStatus
                                    || jkAccessProvider.status === JokerAccessProvider.ProgramsDiscoveredStatus
                                    || jkAccessProvider.status === JokerAccessProvider.ChannelActivated) {
-                            jkAccessProvider.startScan();
+                            jkAccessProvider.startScan(truncateButton.checked);
                         }
                     }
                 }

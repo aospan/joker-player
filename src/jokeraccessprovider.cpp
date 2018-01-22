@@ -95,7 +95,7 @@ void JokerAccessProvider::close()
     d->close();
 }
 
-void JokerAccessProvider::startScan()
+void JokerAccessProvider::startScan(bool truncate)
 {
     Q_D(JokerAccessProvider);
 
@@ -139,6 +139,8 @@ void JokerAccessProvider::startScan()
 
     qCDebug(jkAccessProvider) << "Start discovery";
 
+    if (truncate)
+        emit programRemoved(JokerProgram{});
     d->discoveredPrograms.clear();
     d->startScan();
 }

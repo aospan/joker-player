@@ -165,7 +165,7 @@ public:
     Q_INVOKABLE void open();
     Q_INVOKABLE void close();
 
-    Q_INVOKABLE void startScan();
+    Q_INVOKABLE void startScan(bool truncate);
     Q_INVOKABLE void stopScan();
 
     Q_INVOKABLE void startMmiSession();
@@ -179,6 +179,7 @@ signals:
 
     void programDiscovered(const JokerProgram &program);
     void programUpdated(const JokerProgram &program);
+    void programRemoved(const JokerProgram &program);
 
     void scanningProgressChanged(double progress);
     void scanningChannelChanged(const QString &standardName, int frequencyMhz);
