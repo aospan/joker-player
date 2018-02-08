@@ -10,6 +10,7 @@
 #include <VLCQtCore/Video.h>
 
 #include <QLoggingCategory>
+#include <QDir>
 
 Q_DECLARE_LOGGING_CATEGORY(jkPlayer)
 
@@ -125,6 +126,14 @@ JokerAccessProvider *JokerPlayer::accessProvider() const
     return m_accessProvider;
 }
 
+void JokerPlayer::startDumpingToFile() {
+    m_media->record(QLatin1String("joker_dump"), QDir::homePath(), Vlc::MP4, true);
+}
+
+void JokerPlayer::stopDumpingToFile() {
+//    m_media->record(QLatin1String("temp.mp4"), QDir::homePath(), Vlc::MP4, true);
+}
+
 void JokerPlayer::setAccessProvider(JokerAccessProvider *accessProvider)
 {
     if (m_accessProvider) {
@@ -175,6 +184,18 @@ void JokerPlayer::processCurrentProgram()
         break;
     }
 }
+
+//JokerProgram JokerPlayer::program() const
+//{
+//    return m_program;
+//}
+
+//void JokerPlayer::setProgram(const JokerProgram &program)
+//{
+//    m_program = program;
+//    m_accessProvider->programUpdated(program);
+//}
+
 
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, Vlc::State state)

@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/">
-
-        <!-- QML pages -->
         <file>qml/jokerplayer.qml</file>
         <file>qml/Background.qml</file>
         <file>qml/ProgramsListArea.qml</file>
@@ -41,8 +39,6 @@
         <file>qml/BasicRadioButton.qml</file>
         <file>qml/BasicCheckBox.qml</file>
         <file>qml/BasicPushButton.qml</file>
-
-        <!-- Images -->
         <file>images/main-bg.png</file>
         <file>images/main-fg.png</file>
         <file>images/playlist-bg.png</file>
@@ -99,11 +95,10 @@
         <file>images/channels-scan-progress-bg.png</file>
         <file>images/channels-scan-progress-fg.png</file>
         <file>images/logo-joker-square.png</file>
-
-        <!-- Fonts -->
         <file>fonts/geometria.otf</file>
         <file>fonts/geometria-light.otf</file>
         <file>fonts/geometria-bold.otf</file>
         <file>fonts/geometria-medium.otf</file>
+        <file>images/video-record.png</file>
     </qresource>
 </RCC>

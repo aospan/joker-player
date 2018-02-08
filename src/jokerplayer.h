@@ -22,6 +22,7 @@ class JokerPlayer : public VlcQmlSource
     Q_PROPERTY(int state READ state NOTIFY stateChanged)
     Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
     Q_PROPERTY(bool muted READ isMuted WRITE setMuted NOTIFY mutedChanged)
+//    Q_PROPERTY(JokerProgram currentProgram READ program WRITE setProgram)
 
     Q_PROPERTY(JokerAccessProvider *accessProvider READ accessProvider
                WRITE setAccessProvider NOTIFY accessProviderChanged)
@@ -37,11 +38,17 @@ public:
     void setMuted(bool muted);
 
     Q_INVOKABLE void setupProgram(const JokerProgram &program = JokerProgram());
+    Q_INVOKABLE void startDumpingToFile();
+    Q_INVOKABLE void stopDumpingToFile();
+
 
     Vlc::State state() const;
 
     JokerAccessProvider *accessProvider() const;
     void setAccessProvider(JokerAccessProvider *accessProvider);
+
+//    JokerProgram program() const;
+//    void setProgram(const JokerProgram &program);
 
 signals:
     void volumeChanged(int volume);

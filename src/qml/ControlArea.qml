@@ -26,6 +26,21 @@ ColumnLayout {
             onClicked: fullScreenRequested();
         }
 
+        BasicCheckBox {
+            id: saveButton
+            text: "Save to file"
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.rightMargin: 100
+
+            onClicked: {
+                if (checked)
+                    jkPlayer.startDumpingToFile();
+                else
+                    jkPlayer.stopDumpingToFile();
+            }
+        }
+
         MuteControl {
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
