@@ -3,6 +3,8 @@
 
 #include "jokertelevision.h"
 
+#include <VLCQtCore/Enums.h>
+
 #include <QCoreApplication> // for Q_DECLARE_TR_FUNCTIONS
 
 class JokerProgram
@@ -12,6 +14,7 @@ class JokerProgram
 
     Q_PROPERTY(int id MEMBER m_id)
     Q_PROPERTY(QString description MEMBER m_description)
+    Q_PROPERTY(int aspectRatio MEMBER m_aspectRatio)
 
 public:
     explicit JokerProgram(int channelIndex = -1, int id = -1);
@@ -22,7 +25,8 @@ public:
     int m_channelIndex = -1;
     int m_id = -1;
     int m_position = 0;
-    QString m_description;
+    int m_aspectRatio = Vlc::Ratio::Original;
+    QString m_description; // initialized in ctor
 };
 
 Q_DECLARE_TYPEINFO(JokerProgram, Q_MOVABLE_TYPE);

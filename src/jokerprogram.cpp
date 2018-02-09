@@ -12,8 +12,7 @@ JokerProgram::JokerProgram(int channelIndex, int id)
 bool JokerProgram::operator==(const JokerProgram &other) const
 {
     return m_channelIndex == other.m_channelIndex
-            && m_id == other.m_id
-            ;
+            && m_id == other.m_id;
 }
 
 bool JokerProgram::operator!=(const JokerProgram &other) const
@@ -27,7 +26,9 @@ QDebug operator<<(QDebug debug, const JokerProgram &program)
     debug << "index:" << program.m_channelIndex
           << "id:" << program.m_id
           << "pos:" << program.m_position
-          << "name:" << program.m_description;
+          << "name:" << program.m_description
+          << "ratio:" << program.m_aspectRatio
+             ;
     return debug;
 }
 #endif // QT_NO_DEBUG_STREAM

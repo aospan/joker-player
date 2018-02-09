@@ -56,6 +56,7 @@ private:
     QPointer<JokerSettingsStorage> m_settingsStorage; // not owned
 
     friend class JokerProgramProxyModel;
+    friend class JokerPlayer;
 };
 
 

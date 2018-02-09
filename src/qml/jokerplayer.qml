@@ -41,6 +41,7 @@ ApplicationWindow {
     JokerPlayer {
         id: jkPlayer
         accessProvider: jkAccessProvider
+        programModel: jkProgramModel
     }
 
     JokerProgramModel {

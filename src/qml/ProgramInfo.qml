@@ -7,7 +7,9 @@ BasicLabel {
 
     Connections {
         target: jkPlayer
-        onProgramChanged: control.text = (program.id === -1)
+        onProgramChanged: {
+            control.text = (program.id === -1)
                           ? "" : program.description
+        }
     }
 }

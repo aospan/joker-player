@@ -1,5 +1,6 @@
 #include "jokerplayer.h"
 #include "jokeraccessprovider.h"
+#include "jokerprogrammodel.h"
 
 #include <VLCQtCore/Audio.h>
 #include <VLCQtCore/Common.h>
@@ -86,14 +87,8 @@ void JokerPlayer::setupProgram(const JokerProgram &program)
         return;
     }
 
-    if (m_program == program)
+    if (!setProgram(program))
         return;
-
-    m_program = program;
-    qCDebug(jkPlayer) << "Set program:" << m_program.m_description
-                      << "id:" << m_program.m_id;
-
-    emit programChanged(m_program);
 
     if (m_program.m_id < 0 || m_program.m_channelIndex < 0) {
         m_player->stop();
@@ -116,14 +111,17 @@ void JokerPlayer::setupProgram(const JokerProgram &program)
     }
 }
 
-Vlc::State JokerPlayer::state() const
+void JokerPlayer::updateProgramAspectRatio(int aspectRatio)
 {
-    return m_state;
-}
+    // Ignore for invalid programs.
+    if (m_program.m_id == -1)
+        return;
 
-JokerAccessProvider *JokerPlayer::accessProvider() const
-{
-    return m_accessProvider;
+    if (m_program.m_aspectRatio == aspectRatio)
+        return;
+
+    m_program.m_aspectRatio = aspectRatio;
+    emit programChanged(m_program);
 }
 
 void JokerPlayer::startDumpingToFile() {
@@ -132,6 +130,16 @@ void JokerPlayer::startDumpingToFile() {
 
 void JokerPlayer::stopDumpingToFile() {
 //    m_media->record(QLatin1String("temp.mp4"), QDir::homePath(), Vlc::MP4, true);
+}
+
+Vlc::State JokerPlayer::state() const
+{
+    return m_state;
+}
+
+JokerAccessProvider *JokerPlayer::accessProvider() const
+{
+    return m_accessProvider;
 }
 
 void JokerPlayer::setAccessProvider(JokerAccessProvider *accessProvider)
@@ -154,6 +162,31 @@ void JokerPlayer::setAccessProvider(JokerAccessProvider *accessProvider)
     }
 
     emit accessProviderChanged(m_accessProvider);
+}
+
+JokerProgramModel *JokerPlayer::programModel() const
+{
+    return m_programModel;
+}
+
+void JokerPlayer::setProgramModel(JokerProgramModel *programModel)
+{
+    if (m_programModel == programModel)
+        return;
+
+    if (m_programModel) {
+        disconnect(this, &JokerPlayer::programChanged,
+                   m_programModel, &JokerProgramModel::updateProgram);
+    }
+
+    m_programModel = programModel;
+
+    if (m_programModel) {
+        connect(this, &JokerPlayer::programChanged,
+                m_programModel, &JokerProgramModel::updateProgram);
+    }
+
+    emit programModelChanged(m_programModel);
 }
 
 void JokerPlayer::processCurrentProgram()
@@ -185,17 +218,23 @@ void JokerPlayer::processCurrentProgram()
     }
 }
 
-//JokerProgram JokerPlayer::program() const
-//{
-//    return m_program;
-//}
+JokerProgram JokerPlayer::program() const
+{
+    return m_program;
+}
 
-//void JokerPlayer::setProgram(const JokerProgram &program)
-//{
-//    m_program = program;
-//    m_accessProvider->programUpdated(program);
-//}
+bool JokerPlayer::setProgram(const JokerProgram &program)
+{
+    if (m_program == program)
+        return false;
 
+    m_program = program;
+    qCDebug(jkPlayer) << "Set program:" << m_program.m_description
+                      << "id:" << m_program.m_id;
+
+    emit programChanged(m_program);
+    return true;
+}
 
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug debug, Vlc::State state)

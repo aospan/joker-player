@@ -23,7 +23,8 @@ enum ProgramPropertyIndex {
     ProgramChannelIndex,
     ProgramIdIndex,
     ProgramPositionIndex,
-    ProgramDescriptionIndex
+    ProgramDescriptionIndex,
+    ProgramAspectRatio
 };
 
 enum ChannelPropertyIndex {
@@ -202,7 +203,8 @@ void JokerSettingsStorage::openDatabase()
             + QLatin1String("(channel integer, "
                             "id integer, "
                             "position integer, "
-                            "description text,"
+                            "description text, "
+                            "aspectratio integer, "
                             "primary key (channel, id) on conflict replace)");
 
     QSqlQuery programsQuery(db);
@@ -611,10 +613,12 @@ QVector<JokerProgram> JokerSettingsStorage::storedPrograms() const
             const auto id = query.value(ProgramIdIndex).toInt();
             const auto position = query.value(ProgramPositionIndex).toInt();
             const auto description = query.value(ProgramDescriptionIndex).toString();
+            const auto aspectRatio = query.value(ProgramAspectRatio).toInt();
 
             JokerProgram program(channelIndex, id);
             program.m_position = position;
             program.m_description = description;
+            program.m_aspectRatio = aspectRatio;
 
             programs.append(program);
         }
@@ -656,13 +660,14 @@ void JokerSettingsStorage::processPendings()
         QSqlQuery query(db);
         const QString insertQuery = QLatin1String("insert into ")
                 + QLatin1String(kProgramsTable)
-                + QLatin1String("(channel, id, position, description) values (?, ?, ?, ?)");
+                + QLatin1String("(channel, id, position, description, aspectratio) values (?, ?, ?, ?, ?)");
 
         if (query.prepare(insertQuery)) {
             query.addBindValue(program.m_channelIndex);
             query.addBindValue(program.m_id);
             query.addBindValue(program.m_position);
             query.addBindValue(program.m_description);
+            query.addBindValue(program.m_aspectRatio);
             if (!query.exec()) {
                 qCCritical(jkSettingsStorage) << "Unable to exec programs insert query:" << db.lastError();
             }

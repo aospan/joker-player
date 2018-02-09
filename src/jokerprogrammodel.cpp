@@ -94,8 +94,15 @@ void JokerProgramModel::updateProgram(const JokerProgram &program)
 
     const auto row = m_programs.indexOf(program);
     auto &adjusted = m_programs[row];
-    // Update only program description!
+    // Update only program description and aspect ratio!
+    if (adjusted.m_description == program.m_description
+            && adjusted.m_aspectRatio == program.m_aspectRatio) {
+        qCWarning(jkProgramModel) << "Nothing to update, as description and aspect ration are equals:" << program;
+        return;
+    }
+
     adjusted.m_description = program.m_description;
+    adjusted.m_aspectRatio = program.m_aspectRatio;
 
     qCDebug(jkProgramModel) << "Update program:" << adjusted;
 
